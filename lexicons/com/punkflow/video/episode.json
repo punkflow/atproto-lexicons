@@ -1,0 +1,499 @@
+{
+  "lexicon": 1,
+  "id": "com.punkflow.video.episode",
+  "description": "A single video published by a PunkFlow-aligned creator. Represents the canonical metadata record for one piece of video content. Designed for creator-owned video infrastructure: portable, signed, AI-permission-aware, and built around the structural failures of platform-mediated video distribution.",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["title", "videoUrl", "createdAt"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Display title of the episode."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 10000,
+            "description": "Long-form description, supports plain text or simple markdown."
+          },
+          "videoUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Canonical URL where the video can be played or fetched. Typically points to an HLS manifest, MP4, or hosted player."
+          },
+          "thumbnailUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL to a representative still image for the episode."
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Duration of the video in seconds."
+          },
+          "aspectRatio": {
+            "type": "string",
+            "description": "Aspect ratio of the video as 'width:height' (e.g. '16:9', '21:9', '9:16')."
+          },
+          "language": {
+            "type": "string",
+            "description": "Primary language of the episode, as a BCP-47 tag (e.g. 'en', 'en-US', 'ja')."
+          },
+          "category": {
+            "type": "string",
+            "knownValues": [
+              "tutorial",
+              "lecture",
+              "reference",
+              "news",
+              "episode",
+              "showcase",
+              "journal",
+              "behind-scenes",
+              "commentary"
+            ],
+            "description": "Primary category for the episode. Open vocabulary, but known values are recommended."
+          },
+          "tags": {
+            "type": "array",
+            "items": { "type": "string", "maxLength": 64 },
+            "maxLength": 30,
+            "description": "Topical tags describing content (e.g. 'animation', 'tutorial', 'worldbuilding')."
+          },
+          "aestheticTags": {
+            "type": "array",
+            "items": { "type": "string", "maxLength": 64 },
+            "maxLength": 10,
+            "description": "Tags describing the visual aesthetic (e.g. 'punk-obscura', 'vintage-comic-register', 'neon-noir')."
+          },
+          "series": {
+            "type": "ref",
+            "ref": "#seriesRef",
+            "description": "Series this episode belongs to, if any."
+          },
+          "chapters": {
+            "type": "array",
+            "items": { "type": "ref", "ref": "#chapter" },
+            "maxLength": 200,
+            "description": "Embedded chapter markers within the episode."
+          },
+          "transcriptSegments": {
+            "type": "array",
+            "items": { "type": "ref", "ref": "#transcriptSegment" },
+            "description": "Structured timestamped transcript. Used for accessibility, search, and semantic indexing."
+          },
+          "captions": {
+            "type": "array",
+            "items": { "type": "ref", "ref": "#caption" },
+            "maxLength": 50,
+            "description": "Caption/subtitle file references, typically WebVTT or SRT format."
+          },
+          "credits": {
+            "type": "array",
+            "items": { "type": "ref", "ref": "#credit" },
+            "maxLength": 200,
+            "description": "Collaborators and contributors. Each credit may reference an AT Protocol DID, an external URL, or both."
+          },
+          "contentWarnings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "knownValues": [
+                "flashing-lights",
+                "loud-audio",
+                "sudden-volume-changes",
+                "intense-themes",
+                "violence",
+                "death",
+                "self-harm-discussion",
+                "substance-use",
+                "explicit-language",
+                "sexual-themes",
+                "horror",
+                "body-horror"
+              ]
+            },
+            "maxLength": 20,
+            "description": "Standardized content warning tags for accessibility and informed viewing."
+          },
+          "ageRestriction": {
+            "type": "string",
+            "knownValues": ["general", "mature-themes", "adult"],
+            "description": "Audience appropriateness designation."
+          },
+          "visibility": {
+            "type": "string",
+            "knownValues": ["public", "unlisted", "private", "scheduled"],
+            "default": "public",
+            "description": "Discoverability and access level for the episode."
+          },
+          "accessModel": {
+            "type": "ref",
+            "ref": "#accessModel",
+            "description": "How viewers can access the episode (free, tip-supported, paid, patron-tier)."
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When the episode was or will be published. May differ from createdAt for scheduled releases."
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When the source content was originally recorded. May differ from createdAt and publishedAt."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "When this metadata record was created."
+          },
+          "license": {
+            "type": "ref",
+            "ref": "#license",
+            "description": "Content license. SPDX identifier preferred; custom URL supported for non-SPDX licenses."
+          },
+          "aiPermissions": {
+            "type": "ref",
+            "ref": "#aiPermissions",
+            "description": "Explicit declarations about how AI systems may interact with this content. Missing fields default to creator-protective values: searchIndexing allowed, all others denied."
+          },
+          "disclosures": {
+            "type": "array",
+            "items": { "type": "ref", "ref": "#disclosure" },
+            "maxLength": 20,
+            "description": "Sponsor, paid promotion, or material connection disclosures, structured for FTC compliance and viewer transparency."
+          },
+          "canonStatus": {
+            "type": "string",
+            "knownValues": [
+              "canon",
+              "non-canon",
+              "side-story",
+              "alternate",
+              "draft",
+              "pilot",
+              "behind-scenes",
+              "restoration",
+              "directors-cut"
+            ],
+            "description": "For serialized or worldbuilt creative work, the canonical status of this episode within its series."
+          },
+          "replaces": {
+            "type": "string",
+            "format": "at-uri",
+            "description": "AT URI of a prior version this episode replaces, if any."
+          },
+          "replacementReason": {
+            "type": "string",
+            "knownValues": [
+              "recut",
+              "fixed-audio",
+              "fixed-video",
+              "directors-cut",
+              "restoration",
+              "version-update",
+              "content-correction"
+            ],
+            "description": "Reason this episode replaces a prior version."
+          },
+          "labels": {
+            "type": "ref",
+            "ref": "com.atproto.label.defs#selfLabels",
+            "description": "Self-applied content labels per AT Protocol convention."
+          }
+        }
+      }
+    },
+
+    "seriesRef": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Display name of the series (e.g. 'Child Aurum', 'Simone Pixel', 'Odd Take')."
+        },
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Sequential episode number within the series."
+        },
+        "season": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Season number, if the series uses seasons."
+        },
+        "uri": {
+          "type": "string",
+          "format": "at-uri",
+          "description": "Optional reference to a com.punkflow.video.series record for richer metadata."
+        }
+      }
+    },
+
+    "chapter": {
+      "type": "object",
+      "required": ["start", "title"],
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Start time of the chapter, in seconds from the beginning of the episode."
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Chapter title."
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Optional longer description of the chapter."
+        }
+      }
+    },
+
+    "transcriptSegment": {
+      "type": "object",
+      "required": ["text", "start"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Transcribed text for this segment."
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Start time of this segment, in seconds from the beginning of the episode."
+        },
+        "duration": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Duration of this segment in seconds."
+        },
+        "speaker": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Optional speaker identifier or name."
+        }
+      }
+    },
+
+    "caption": {
+      "type": "object",
+      "required": ["language", "url"],
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "BCP-47 language tag for these captions (e.g. 'en', 'es-MX', 'ja')."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the caption file. WebVTT (.vtt) preferred; SRT (.srt) acceptable."
+        },
+        "kind": {
+          "type": "string",
+          "knownValues": [
+            "subtitles",
+            "captions",
+            "descriptions",
+            "translations"
+          ],
+          "default": "captions",
+          "description": "Type of caption track."
+        },
+        "isDefault": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this is the default caption track."
+        }
+      }
+    },
+
+    "credit": {
+      "type": "object",
+      "required": ["role"],
+      "properties": {
+        "role": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Role of the contributor (e.g. 'director', 'voice', 'music', 'animator', 'editor', 'writer', 'cinematographer', 'sound-design', 'producer')."
+        },
+        "did": {
+          "type": "string",
+          "format": "did",
+          "description": "AT Protocol DID of the contributor, if they are on the network."
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Display name of the contributor."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "External URL for the contributor (portfolio, social profile, etc.)."
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Optional note about this credit (e.g. 'as Beta Bot', 'episode 3 only')."
+        }
+      }
+    },
+
+    "accessModel": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "knownValues": [
+            "free",
+            "tip-supported",
+            "paid",
+            "patron-tier",
+            "rental",
+            "subscription"
+          ],
+          "description": "How viewers can access this episode."
+        },
+        "accessUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL where viewers can purchase, subscribe, or otherwise gain access for non-free models."
+        },
+        "tipUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL where viewers can tip the creator, for tip-supported models."
+        },
+        "priceHint": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Human-readable price indication (e.g. '$5', 'pay-what-you-want', 'patron-tier-2'). Not authoritative for transactions."
+        }
+      }
+    },
+
+    "license": {
+      "type": "object",
+      "properties": {
+        "spdxId": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "SPDX license identifier (e.g. 'CC-BY-4.0', 'CC-BY-NC-SA-4.0', 'CC0-1.0', 'MIT'). Use 'all-rights-reserved' for traditional copyright."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the full license text or a custom license."
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Additional licensing notes or clarifications."
+        }
+      }
+    },
+
+    "aiPermissions": {
+      "type": "object",
+      "description": "Explicit declarations about how AI systems may interact with this content. Default behavior for missing fields: searchIndexing allowed, all others denied.",
+      "properties": {
+        "searchIndexing": {
+          "type": "string",
+          "knownValues": ["allow", "deny"],
+          "default": "allow",
+          "description": "Allow basic search indexing that drives traffic to the canonical work. Default: allow."
+        },
+        "aiSummarization": {
+          "type": "string",
+          "knownValues": ["allow", "deny"],
+          "default": "deny",
+          "description": "Allow AI-generated summaries that may displace clicks to the original. Default: deny."
+        },
+        "semanticEmbedding": {
+          "type": "string",
+          "knownValues": ["allow", "deny"],
+          "default": "deny",
+          "description": "Allow vector embedding of content for similarity matching beyond direct search lookup. Default: deny."
+        },
+        "training": {
+          "type": "string",
+          "knownValues": ["allow", "deny"],
+          "default": "deny",
+          "description": "Allow use as training data for AI models. Default: deny."
+        },
+        "generation": {
+          "type": "string",
+          "knownValues": ["allow", "deny"],
+          "default": "deny",
+          "description": "Allow use as input for AI generation of derivative content. Default: deny."
+        },
+        "excerpting": {
+          "type": "string",
+          "knownValues": ["allow", "deny"],
+          "default": "deny",
+          "description": "Allow AI extraction of clips, frames, or snippets for use elsewhere. Default: deny."
+        },
+        "termsUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional URL to the creator's full AI policy for additional nuance and conditions."
+        }
+      }
+    },
+
+    "disclosure": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "knownValues": [
+            "paid-sponsorship",
+            "affiliate-link",
+            "gifted-product",
+            "material-connection",
+            "advertisement",
+            "endorsement"
+          ],
+          "description": "Type of disclosure for transparency and FTC compliance."
+        },
+        "party": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Name of the sponsoring entity, brand, or party."
+        },
+        "startTime": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Start time in the episode where the disclosed content begins, in seconds."
+        },
+        "endTime": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "End time in the episode where the disclosed content ends, in seconds."
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL related to the disclosure (sponsor's site, affiliate target, etc.)."
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Additional context about the disclosure."
+        }
+      }
+    }
+  }
+}
