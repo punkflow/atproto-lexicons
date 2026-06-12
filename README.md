@@ -74,6 +74,10 @@ When a field is missing or unspecified, the default is creator-protective: `sear
 
 This is a structural statement, not just a policy. The schema embeds the principle that AI use of creator content requires explicit creator consent, not platform consent.
 
+## Publishing policy
+
+The schemas define what *can* be published, not what *should* be. PunkFlow's own published records follow an internal Canon Leak Fill-Policy: canon-bearing fields are kept thin or empty in the published record and injected at render time. Records on the AT Protocol firehose are openly readable and permanently mirrorable, so publishing a field is always a deliberate choice, never a default.
+
 ## Contributing
 
 These schemas are published under the MIT License. They are open infrastructure: fork, extend, or adapt them for your own work.
